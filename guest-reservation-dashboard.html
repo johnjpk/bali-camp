@@ -1,669 +1,1027 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Bali Camp Guest Reservation Dashboard" />
+  <meta name="description" content="Bali Camp booking widget" />
   <meta name="theme-color" content="#1b4332" />
-  <title>Bali Camp | Guest Reservation Dashboard</title>
+  <title>Bali Camp | Booking Widget</title>
   <link rel="icon" type="image/jpeg" href="assets/Opens%20This%20February.Hike.%20Relax.%20Recharge.%20%23ulugurumountains.jpg" />
   <link rel="apple-touch-icon" href="assets/Opens%20This%20February.Hike.%20Relax.%20Recharge.%20%23ulugurumountains.jpg" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            forest: "#1b4332",
-            clay: "#d4a373",
-            charcoal: "#2b2d42",
-            mist: "#f7f4ef"
-          },
-          boxShadow: {
-            soft: "0 18px 50px rgba(27,67,50,0.10)",
-            luxe: "0 26px 80px rgba(27,67,50,0.16)"
-          }
-        }
-      }
-    };
-  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet" />
   <style>
     :root {
-      color-scheme: light;
+      --green: #1b4332;
+      --earth: #d4a373;
+      --charcoal: #2b2d42;
+      --mist: #fbfaf7;
+      --line: rgba(27, 67, 50, 0.12);
+      --soft: 0 20px 60px rgba(27, 67, 50, 0.12);
+      --radius-xl: 32px;
+      --radius-lg: 22px;
     }
 
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
     body {
+      margin: 0;
       font-family: "Inter", system-ui, sans-serif;
+      color: var(--charcoal);
       background:
         radial-gradient(circle at top left, rgba(212, 163, 115, 0.14), transparent 30%),
         radial-gradient(circle at top right, rgba(27, 67, 50, 0.12), transparent 28%),
-        linear-gradient(180deg, #ffffff 0%, #fbfaf7 42%, #f6f1ea 100%);
+        linear-gradient(180deg, #ffffff 0%, #fbfaf7 40%, #f4efe7 100%);
+      overflow-x: hidden;
     }
 
-    .display-font {
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(27, 67, 50, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(27, 67, 50, 0.03) 1px, transparent 1px);
+      background-size: 100px 100px;
+      mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.45), transparent 80%);
+      opacity: 0.6;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button, input { font: inherit; }
+    img { display: block; max-width: 100%; }
+    .container { width: min(1160px, calc(100vw - 2rem)); margin: 0 auto; }
+    .display { font-family: "Playfair Display", Georgia, serif; letter-spacing: -0.04em; }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      padding: 1rem 0;
+    }
+
+    .nav {
+      width: min(1160px, calc(100vw - 2rem));
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.9rem 1rem 0.9rem 1.2rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.48);
+      background: rgba(255, 255, 255, 0.72);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 16px 40px rgba(27, 67, 50, 0.08);
+      position: relative;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      margin-left: auto;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.85rem;
+      font-weight: 800;
+      color: var(--green);
+      white-space: nowrap;
+    }
+
+    .brand-mark {
+      width: 2.8rem;
+      height: 2.8rem;
+      border-radius: 18px;
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--green), #245845);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 16px 34px rgba(27, 67, 50, 0.22);
+    }
+
+    .brand-mark img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .nav-link {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.78rem 1rem;
+      border-radius: 999px;
+      color: var(--charcoal);
+      font-size: 0.95rem;
+      font-weight: 600;
+      transition: transform 160ms ease, background-color 160ms ease, color 160ms ease;
+    }
+
+    .nav-link:hover,
+    .nav-link:focus-visible {
+      background: rgba(27, 67, 50, 0.08);
+      color: var(--green);
+      transform: translateY(-1px);
+    }
+
+    .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.65rem;
+      padding: 1rem 1.35rem;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--green), #245845);
+      color: #fff;
+      font-weight: 700;
+      box-shadow: 0 18px 30px rgba(27, 67, 50, 0.28);
+      transition: transform 160ms ease, box-shadow 160ms ease;
+    }
+
+    .nav-cta:hover,
+    .nav-cta:focus-visible {
+      transform: translateY(-2px);
+      box-shadow: 0 22px 38px rgba(27, 67, 50, 0.32);
+    }
+
+    .menu-toggle {
+      display: none;
+      width: 2.85rem;
+      height: 2.85rem;
+      border-radius: 999px;
+      border: 1px solid rgba(27, 67, 50, 0.12);
+      background: rgba(255, 255, 255, 0.9);
+      color: var(--green);
+      align-items: center;
+      justify-content: center;
+    }
+
+    .menu-panel {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      margin-top: 0.85rem;
+      padding: 0.8rem;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.96);
+      border: 1px solid rgba(27, 67, 50, 0.1);
+      box-shadow: 0 24px 60px rgba(27, 67, 50, 0.12);
+      backdrop-filter: blur(18px);
+      transform-origin: top;
+      transform: scaleY(0.98);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 180ms ease, transform 180ms ease;
+    }
+
+    .menu-panel[data-open="true"] {
+      opacity: 1;
+      pointer-events: auto;
+      transform: scaleY(1);
+    }
+
+    .menu-panel .nav-link {
+      width: 100%;
+      justify-content: flex-start;
+      padding: 0.95rem 1rem;
+      border-radius: 18px;
+    }
+
+    .hero {
+      padding: 2.5rem 0 5rem;
+    }
+
+    .hero-shell {
+      border-radius: 38px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.55);
+      background: linear-gradient(135deg, rgba(27, 67, 50, 0.96), rgba(27, 67, 50, 0.84));
+      color: #fff;
+      box-shadow: var(--soft);
+      position: relative;
+    }
+
+    .hero-shell::before,
+    .hero-shell::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      filter: blur(22px);
+      opacity: 0.55;
+    }
+
+    .hero-shell::before {
+      width: 18rem;
+      height: 18rem;
+      left: -6rem;
+      top: -5rem;
+      background: rgba(212, 163, 115, 0.18);
+    }
+
+    .hero-shell::after {
+      width: 22rem;
+      height: 22rem;
+      right: -8rem;
+      bottom: -8rem;
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .hero-grid {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 2rem;
+      padding: clamp(1.6rem, 4vw, 4rem);
+      align-items: stretch;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.6rem 1rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.78);
+      font-size: 0.8rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      backdrop-filter: blur(16px);
+    }
+
+    .hero-title {
+      margin: 1rem 0 0.9rem;
       font-family: "Playfair Display", Georgia, serif;
+      font-size: clamp(2.9rem, 5.4vw, 5.8rem);
+      line-height: 0.95;
       letter-spacing: -0.04em;
     }
 
-    .glass {
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
+    .hero-copy {
+      max-width: 42rem;
+      font-size: 1.04rem;
+      line-height: 1.85;
+      color: rgba(255, 255, 255, 0.8);
     }
 
-    .card-raise {
-      transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
-    }
-
-    .card-raise:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 24px 60px rgba(27, 67, 50, 0.14);
-    }
-
-    .calendar-grid {
-      display: grid;
-      grid-template-columns: repeat(7, minmax(0, 1fr));
-      gap: 0.65rem;
-    }
-
-    .day-btn {
-      min-height: 4.8rem;
-      border-radius: 1.15rem;
-      border: 1px solid rgba(27, 67, 50, 0.08);
-      background: rgba(255, 255, 255, 0.82);
-      text-align: left;
-      padding: 0.65rem;
+    .hero-actions {
       display: flex;
-      flex-direction: column;
+      flex-wrap: wrap;
+      gap: 0.9rem;
+      margin-top: 1.8rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      border-radius: 999px;
+      padding: 0.95rem 1.25rem;
+      font-weight: 700;
+      border: 1px solid transparent;
+      transition: transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+    }
+
+    .btn:hover,
+    .btn:focus-visible {
+      transform: translateY(-2px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #f2d2b4, var(--earth));
+      color: #2b221a;
+      box-shadow: 0 18px 38px rgba(212, 163, 115, 0.28);
+      animation: pulse 2.8s ease-in-out infinite;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.16);
+    }
+
+    .preview-card {
+      position: relative;
+      overflow: hidden;
+      border-radius: 30px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: linear-gradient(180deg, rgba(7, 27, 20, 0.12), rgba(7, 27, 20, 0.44));
+      min-height: 30rem;
+      box-shadow: 0 26px 50px rgba(0, 0, 0, 0.2);
+    }
+
+    .preview-card img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .preview-card::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 0;
+      height: 56%;
+      background: linear-gradient(180deg, transparent, rgba(7, 27, 20, 0.86));
+      pointer-events: none;
+    }
+
+    .preview-badge,
+    .preview-info {
+      position: absolute;
+      z-index: 1;
+    }
+
+    .preview-badge {
+      left: 1rem;
+      top: 1rem;
+      padding: 0.8rem 1rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.9);
+      color: var(--green);
+      font-weight: 700;
+      font-size: 0.92rem;
+    }
+
+    .preview-info {
+      left: 1rem;
+      right: 1rem;
+      bottom: 1rem;
+      padding: 1rem 1.1rem;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(14px);
+      color: var(--charcoal);
+      box-shadow: 0 18px 38px rgba(0, 0, 0, 0.12);
+    }
+
+    .section {
+      padding: 0 0 5rem;
+    }
+
+    .widget-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 1.2rem;
+      align-items: start;
+    }
+
+    .panel {
+      border-radius: 30px;
+      border: 1px solid rgba(27, 67, 50, 0.1);
+      background: rgba(255, 255, 255, 0.82);
+      box-shadow: var(--soft);
+      backdrop-filter: blur(10px);
+      padding: clamp(1.2rem, 2.6vw, 1.8rem);
+    }
+
+    .panel h2,
+    .panel h3,
+    .panel h4 {
+      margin: 0;
+    }
+
+    .panel-title {
+      font-family: "Playfair Display", Georgia, serif;
+      font-size: clamp(2rem, 3vw, 2.8rem);
+      letter-spacing: -0.04em;
+      color: var(--green);
+    }
+
+    .panel-copy {
+      margin-top: 0.75rem;
+      line-height: 1.8;
+      color: rgba(43, 45, 66, 0.72);
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 1rem;
+      margin-top: 1.3rem;
+    }
+
+    .field-group {
+      display: grid;
+      gap: 0.7rem;
+    }
+
+    .field-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-size: 0.8rem;
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(27, 67, 50, 0.62);
+    }
+
+    .field {
+      width: 100%;
+      border-radius: 18px;
+      border: 1px solid rgba(27, 67, 50, 0.12);
+      background: rgba(255, 255, 255, 0.96);
+      padding: 1rem 1.05rem;
+      color: var(--charcoal);
+      outline: none;
+      transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+    }
+
+    .field:focus {
+      border-color: rgba(27, 67, 50, 0.38);
+      box-shadow: 0 0 0 4px rgba(27, 67, 50, 0.08);
+    }
+
+    .guest-row {
+      display: flex;
+      align-items: center;
       justify-content: space-between;
-      transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease, background-color 160ms ease;
+      gap: 1rem;
+      padding: 1rem 1.05rem;
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(247, 244, 239, 0.78));
+      border: 1px solid rgba(27, 67, 50, 0.08);
     }
 
-    .day-btn:hover {
+    .guest-row strong {
+      display: block;
+      color: var(--green);
+      font-size: 1rem;
+      margin-bottom: 0.2rem;
+    }
+
+    .guest-row span {
+      display: block;
+      color: rgba(43, 45, 66, 0.68);
+      font-size: 0.93rem;
+      line-height: 1.5;
+    }
+
+    .stepper {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      padding: 0.3rem;
+      border-radius: 999px;
+      background: rgba(27, 67, 50, 0.04);
+      border: 1px solid rgba(27, 67, 50, 0.08);
+    }
+
+    .stepper button {
+      width: 2.55rem;
+      height: 2.55rem;
+      border: 0;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.92);
+      color: var(--green);
+      font-size: 1.2rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 160ms ease, background-color 160ms ease, opacity 160ms ease;
+    }
+
+    .stepper button:hover:not(:disabled),
+    .stepper button:focus-visible:not(:disabled) {
       transform: translateY(-1px);
-      box-shadow: 0 16px 32px rgba(27, 67, 50, 0.10);
+      background: #fff;
     }
 
-    .day-btn:disabled {
+    .stepper button:disabled {
+      opacity: 0.42;
       cursor: not-allowed;
     }
 
-    .day-number {
-      font-weight: 700;
-      font-size: 0.95rem;
-      color: #2b2d42;
+    .stepper .count {
+      min-width: 2.2rem;
+      text-align: center;
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--green);
     }
 
-    .day-status {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      font-size: 0.68rem;
-      font-weight: 700;
-      letter-spacing: 0.04em;
+    .summary {
+      display: grid;
+      gap: 0.9rem;
+    }
+
+    .summary-card {
+      padding: 1rem 1.05rem;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.88);
+      border: 1px solid rgba(27, 67, 50, 0.08);
+    }
+
+    .summary-card small {
+      display: block;
       text-transform: uppercase;
-      line-height: 1.2;
+      letter-spacing: 0.18em;
+      font-size: 0.75rem;
+      color: rgba(27, 67, 50, 0.52);
+      font-weight: 800;
     }
 
-    .selected-ring {
-      box-shadow: inset 0 0 0 2px #1b4332, 0 18px 36px rgba(27, 67, 50, 0.10);
+    .summary-card strong,
+    .summary-card code {
+      display: block;
+      margin-top: 0.5rem;
+      color: var(--green);
+      font-size: 1rem;
+      line-height: 1.6;
+      word-break: break-word;
     }
 
-    .range-fill {
-      background: linear-gradient(180deg, rgba(27, 67, 50, 0.10), rgba(27, 67, 50, 0.04));
-      border-color: rgba(27, 67, 50, 0.18);
+    .summary-card strong {
+      white-space: pre-line;
     }
 
-    .status-green {
-      background: rgba(44, 118, 79, 0.10);
-      color: #1f6f49;
+    .summary-card code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.84rem;
+      color: rgba(43, 45, 66, 0.74);
     }
 
-    .status-clay {
-      background: rgba(212, 163, 115, 0.18);
-      color: #8c5b2e;
+    .policy-box {
+      margin-top: 1rem;
+      padding: 1rem 1.05rem;
+      border-radius: 22px;
+      background: linear-gradient(135deg, rgba(27, 67, 50, 0.96), rgba(18, 46, 35, 0.95));
+      color: #fff;
+      box-shadow: 0 20px 44px rgba(27, 67, 50, 0.18);
     }
 
-    .status-muted {
-      background: rgba(148, 163, 184, 0.16);
-      color: #6b7280;
-      text-decoration: line-through;
-      text-decoration-thickness: 2px;
+    .policy-box p {
+      margin: 0;
+      line-height: 1.8;
+      color: rgba(255, 255, 255, 0.82);
     }
 
-    .room-card {
-      position: relative;
-      overflow: hidden;
-    }
-
-    .room-card::before {
-      content: "";
-      position: absolute;
-      inset: 0 auto auto 0;
+    .submit-btn {
       width: 100%;
-      height: 3px;
-      background: linear-gradient(90deg, #1b4332, #d4a373);
-      opacity: 0;
-      transition: opacity 180ms ease;
+      margin-top: 1rem;
+      padding: 1rem 1.2rem;
+      border: 0;
+      border-radius: 18px;
+      background: linear-gradient(135deg, var(--green), #245845);
+      color: #fff;
+      font-weight: 800;
+      font-size: 1rem;
+      cursor: pointer;
+      box-shadow: 0 18px 34px rgba(27, 67, 50, 0.22);
+      transition: transform 160ms ease, box-shadow 160ms ease, opacity 160ms ease;
     }
 
-    .room-card[data-active="true"]::before {
-      opacity: 1;
+    .submit-btn:hover:not(:disabled),
+    .submit-btn:focus-visible:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 22px 42px rgba(27, 67, 50, 0.26);
     }
 
-    .pulse-dot {
-      width: 0.55rem;
-      height: 0.55rem;
-      border-radius: 999px;
-      box-shadow: 0 0 0 6px rgba(212, 163, 115, 0.14);
-      background: #d4a373;
+    .submit-btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .helper {
+      margin-top: 0.75rem;
+      color: rgba(43, 45, 66, 0.66);
+      font-size: 0.93rem;
+      line-height: 1.7;
+    }
+
+    .footer {
+      padding: 0 0 2rem;
+      color: rgba(43, 45, 66, 0.66);
+      text-align: center;
+    }
+
+    .footer a {
+      color: var(--green);
+      font-weight: 700;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 18px 38px rgba(212, 163, 115, 0.28); transform: translateY(0); }
+      50% { box-shadow: 0 24px 46px rgba(212, 163, 115, 0.38); transform: translateY(-1px); }
+    }
+
+    @media (max-width: 980px) {
+      .hero-grid,
+      .widget-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .preview-card {
+        min-height: 24rem;
+      }
+    }
+
+    @media (max-width: 820px) {
+      .menu-toggle { display: inline-flex; }
+      .nav {
+        border-radius: 28px;
+        align-items: flex-start;
+        padding: 0.85rem;
+      }
+
+      .nav-links {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        display: grid;
+        gap: 0.35rem;
+        margin-top: 0.85rem;
+        padding: 0.75rem;
+        background: rgba(255, 255, 255, 0.96);
+        border: 1px solid rgba(27, 67, 50, 0.1);
+        border-radius: 24px;
+        box-shadow: 0 24px 60px rgba(27, 67, 50, 0.12);
+        transform-origin: top;
+        transform: scaleY(0.96);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 180ms ease, transform 180ms ease;
+        z-index: 10;
+      }
+
+      .nav-links[data-open="true"] {
+        opacity: 1;
+        pointer-events: auto;
+        transform: scaleY(1);
+      }
+
+      .nav-link {
+        width: 100%;
+        justify-content: flex-start;
+        padding: 0.95rem 1rem;
+        border-radius: 18px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .hero { padding-top: 1.6rem; }
+      .hero-title { font-size: clamp(2.45rem, 12vw, 4rem); }
+      .hero-copy { font-size: 0.98rem; }
+      .nav-cta { padding: 0.92rem 1.05rem; }
+      .panel { border-radius: 26px; }
+      .guest-row { flex-direction: column; align-items: stretch; }
+      .stepper { justify-content: space-between; width: 100%; }
     }
   </style>
 </head>
-<body class="text-charcoal">
-  <header class="sticky top-0 z-50 border-b border-white/60 bg-white/70 glass">
-    <div class="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
-      <div class="flex items-center gap-3">
-        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-forest text-white shadow-soft">
-          <span class="display-font text-2xl leading-none">B</span>
-        </div>
-        <div>
-          <p class="text-sm font-bold uppercase tracking-[0.22em] text-forest/70">Bali Camp</p>
-          <h1 class="display-font text-xl font-bold text-forest sm:text-2xl">Guest Reservation Dashboard</h1>
-        </div>
-      </div>
-      <div class="hidden items-center gap-3 md:flex">
-        <a href="bali-camp.html" class="rounded-full border border-forest/10 bg-white px-5 py-3 text-sm font-bold text-forest shadow-sm transition hover:-translate-y-0.5">
-          View Resort Site
-        </a>
-        <span class="inline-flex items-center gap-2 rounded-full border border-forest/10 bg-white px-4 py-2 text-sm font-semibold text-forest shadow-sm">
-          <span class="pulse-dot"></span>
-          Live demo mode
+<body>
+  <header class="topbar">
+    <nav class="nav" aria-label="Primary">
+      <a class="brand" href="bali-camp.html">
+        <span class="brand-mark">
+          <img src="assets/Opens%20This%20February.Hike.%20Relax.%20Recharge.%20%23ulugurumountains.jpg" alt="Bali Camp logo" />
         </span>
-        <a href="https://wa.me/255741988988" target="_blank" rel="noreferrer" class="rounded-full bg-forest px-5 py-3 text-sm font-bold text-white shadow-soft transition hover:-translate-y-0.5">
-          WhatsApp Booking
-        </a>
+        Bali Camp
+      </a>
+      <div class="nav-actions">
+        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-links" id="menuToggle" aria-label="Open menu">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+          </svg>
+        </button>
       </div>
-    </div>
+      <div class="nav-links" id="primary-links" data-open="false">
+        <a class="nav-link" href="#booking-widget">Booking Widget</a>
+        <a class="nav-link" href="https://www.instagram.com/balicamp_tz?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noreferrer">Instagram</a>
+        <a class="nav-link" href="bali-camp.html">View Resort Site</a>
+      </div>
+    </nav>
   </header>
 
-  <main class="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
-    <section class="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-      <div class="overflow-hidden rounded-[2rem] border border-white/70 bg-white/75 p-6 shadow-soft glass sm:p-8">
-        <span class="inline-flex items-center gap-2 rounded-full border border-clay/20 bg-clay/12 px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-clay">
-          Luxury reservation flow
-        </span>
-        <div class="mt-5 max-w-3xl">
-          <h2 class="display-font text-4xl font-bold text-forest sm:text-5xl">Minimal booking control for a 4-room mountain retreat.</h2>
-          <p class="mt-4 max-w-2xl text-base leading-8 text-charcoal/70 sm:text-lg">
-            Tap dates to simulate a live reservation hold, review cottage availability in real time, and confirm a polished booking flow that feels premium on mobile.
-          </p>
-        </div>
-        <div class="mt-6 grid gap-3 sm:grid-cols-3">
-          <div class="rounded-2xl border border-forest/10 bg-forest/[0.04] p-4">
-            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-forest/60">Capacity</p>
-            <p class="mt-2 text-lg font-bold text-forest">2 Adults + 1 Child</p>
-          </div>
-          <div class="rounded-2xl border border-forest/10 bg-white p-4">
-            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-forest/60">Rooms</p>
-            <p class="mt-2 text-lg font-bold text-forest">4 cottages only</p>
-          </div>
-          <div class="rounded-2xl border border-clay/20 bg-clay/10 p-4">
-            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-clay">Policy</p>
-            <p class="mt-2 text-lg font-bold text-charcoal">Non-refundable</p>
+  <main>
+    <section class="hero">
+      <div class="container">
+        <div class="hero-shell">
+          <div class="hero-grid">
+            <div>
+              <span class="eyebrow">Luxury reservation flow</span>
+              <h1 class="hero-title display">Stay booking, simplified for mobile-first guests.</h1>
+              <p class="hero-copy">
+                Use the widget below to choose dates, set guests with strict capacity limits, and generate a clean WhatsApp booking request in a new tab. It is built to feel calm, elegant, and fast on small screens.
+              </p>
+              <div class="hero-actions">
+                <a class="btn btn-primary" href="#booking-widget">Start Booking</a>
+                <a class="btn btn-secondary" href="https://wa.me/255741988988" target="_blank" rel="noreferrer">WhatsApp Line: +255 741 988 988</a>
+              </div>
+            </div>
+            <aside class="preview-card" aria-label="Bali Camp reservation preview">
+              <img data-img="preview" alt="Bali Camp mountain retreat preview" />
+              <div class="preview-badge">Bali Camp</div>
+              <div class="preview-info">
+                <strong>Strictly by Reservation Only</strong>
+                <span>Four-room boutique stay with a polished WhatsApp booking handoff to +255 741 988 988.</span>
+              </div>
+            </aside>
           </div>
         </div>
       </div>
-
-      <aside class="rounded-[2rem] border border-white/70 bg-gradient-to-br from-forest to-forest/90 p-6 text-white shadow-luxe glass sm:p-8">
-        <div class="flex items-center justify-between gap-4">
-          <div>
-            <p class="text-xs font-bold uppercase tracking-[0.22em] text-white/65">Selected stay</p>
-            <h3 class="display-font mt-2 text-3xl font-bold">Booking Snapshot</h3>
-          </div>
-          <div class="rounded-2xl bg-white/10 px-4 py-3 text-right">
-            <p class="text-xs uppercase tracking-[0.22em] text-white/60">Live demo</p>
-            <p id="liveCottages" class="mt-1 text-lg font-bold">4 Available</p>
-          </div>
-        </div>
-        <div class="mt-6 grid gap-3 sm:grid-cols-2">
-          <div class="rounded-2xl border border-white/10 bg-white/10 p-4">
-            <p class="text-xs uppercase tracking-[0.18em] text-white/60">Selected dates</p>
-            <p id="summaryDates" class="mt-2 text-lg font-bold">Select a check-in date</p>
-          </div>
-          <div class="rounded-2xl border border-white/10 bg-white/10 p-4">
-            <p class="text-xs uppercase tracking-[0.18em] text-white/60">Total nights</p>
-            <p id="summaryNights" class="mt-2 text-lg font-bold">0 nights</p>
-          </div>
-        </div>
-        <div class="mt-4 rounded-2xl border border-white/10 bg-white/10 p-4">
-          <p class="text-xs uppercase tracking-[0.18em] text-white/60">Guests</p>
-          <p id="summaryGuests" class="mt-2 text-lg font-bold">1 Adult, 0 Child</p>
-          <p class="mt-2 text-sm leading-6 text-white/72">Capacity enforced: max 2 adults and 1 child under 5 years.</p>
-        </div>
-        <div class="mt-4 rounded-2xl border border-white/10 bg-white/10 p-4">
-          <p class="text-xs uppercase tracking-[0.18em] text-white/60">Selected cottage</p>
-          <p id="summaryRoom" class="mt-2 text-lg font-bold">Auto-selecting best available room</p>
-        </div>
-      </aside>
     </section>
 
-    <section class="mt-6 grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-      <div class="rounded-[2rem] border border-white/70 bg-white/10 p-5 shadow-soft glass sm:p-6">
-        <div class="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <span class="inline-flex items-center gap-2 rounded-full border border-forest/10 bg-white px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-forest/70">
-              Interactive availability
-            </span>
-            <h3 id="monthLabel" class="display-font mt-4 text-3xl font-bold text-forest sm:text-4xl"></h3>
-          </div>
-          <div class="rounded-2xl bg-forest/[0.04] px-4 py-3 text-sm font-semibold text-forest">
-            Tap two dates to set a stay
-          </div>
-        </div>
-
-        <div class="mt-5 flex flex-wrap gap-2 text-xs font-semibold">
-          <span class="inline-flex items-center gap-2 rounded-full bg-green-50 px-3 py-2 text-green-700"><span class="h-2.5 w-2.5 rounded-full bg-green-500"></span>Available</span>
-          <span class="inline-flex items-center gap-2 rounded-full bg-clay/15 px-3 py-2 text-clay-700"><span class="h-2.5 w-2.5 rounded-full bg-clay"></span>Only 1 Cottage Left</span>
-          <span class="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-2 text-slate-500"><span class="h-2.5 w-2.5 rounded-full bg-slate-400"></span>Fully Booked</span>
-        </div>
-
-        <div class="mt-6">
-          <div class="calendar-grid text-[0.72rem] font-bold uppercase tracking-[0.18em] text-forest/45">
-            <div class="px-2">Sun</div><div class="px-2">Mon</div><div class="px-2">Tue</div><div class="px-2">Wed</div><div class="px-2">Thu</div><div class="px-2">Fri</div><div class="px-2">Sat</div>
-          </div>
-          <div id="calendar" class="calendar-grid mt-3"></div>
-        </div>
-      </div>
-
-      <div class="rounded-[2rem] border border-white/70 bg-white/10 p-5 shadow-soft glass sm:p-6 lg:sticky lg:top-24 lg:self-start">
-        <div class="flex items-center justify-between gap-4">
-          <div>
-            <span class="inline-flex items-center gap-2 rounded-full border border-clay/20 bg-clay/10 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.2em] text-clay">
-              Smart booking summary
-            </span>
-            <h3 class="display-font mt-4 text-3xl font-bold text-forest">Booking control panel</h3>
-          </div>
-          <div class="rounded-2xl bg-forest/[0.04] px-4 py-3 text-right">
-            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-forest/45">Nights</p>
-            <p id="summaryNightsMini" class="mt-1 text-2xl font-bold text-forest">0</p>
-          </div>
-        </div>
-
-        <div class="mt-6 grid gap-4">
-          <div class="rounded-3xl border border-forest/10 bg-white p-5">
-            <div class="flex items-center justify-between gap-3">
-              <div>
-                <p class="text-xs font-bold uppercase tracking-[0.18em] text-forest/45">Adults</p>
-                <p class="mt-1 text-lg font-bold text-forest">Strictly 2 max</p>
-              </div>
-              <div class="flex items-center gap-2">
-                <button id="adultMinus" class="flex h-11 w-11 items-center justify-center rounded-2xl border border-forest/10 bg-forest/[0.03] text-lg font-bold text-forest transition hover:bg-forest/5">-</button>
-                <span id="adultCount" class="min-w-8 text-center text-xl font-bold text-forest">1</span>
-                <button id="adultPlus" class="flex h-11 w-11 items-center justify-center rounded-2xl border border-forest/10 bg-forest/[0.03] text-lg font-bold text-forest transition hover:bg-forest/5">+</button>
-              </div>
-            </div>
-          </div>
-
-          <div class="rounded-3xl border border-forest/10 bg-white p-5">
-            <div class="flex items-center justify-between gap-3">
-              <div>
-                <p class="text-xs font-bold uppercase tracking-[0.18em] text-forest/45">Child</p>
-                <p class="mt-1 text-lg font-bold text-forest">Under 5 years only</p>
-              </div>
-              <div class="flex items-center gap-2">
-                <button id="childMinus" class="flex h-11 w-11 items-center justify-center rounded-2xl border border-forest/10 bg-forest/[0.03] text-lg font-bold text-forest transition hover:bg-forest/5">-</button>
-                <span id="childCount" class="min-w-8 text-center text-xl font-bold text-forest">0</span>
-                <button id="childPlus" class="flex h-11 w-11 items-center justify-center rounded-2xl border border-forest/10 bg-forest/[0.03] text-lg font-bold text-forest transition hover:bg-forest/5">+</button>
-              </div>
-            </div>
-          </div>
-
-          <div class="rounded-3xl border border-clay/20 bg-clay/10 p-5">
-            <p class="text-xs font-bold uppercase tracking-[0.18em] text-clay">Policy safeguard</p>
-            <p class="mt-3 text-sm leading-7 text-charcoal/75">
-              Strictly by Reservation Only. All bookings are final and subject to our 50% rescheduling policy.
+    <section class="section" id="booking-widget">
+      <div class="container">
+        <div class="widget-grid">
+          <form id="bookingForm" class="panel" autocomplete="off">
+            <span class="eyebrow" style="color: var(--green); border-color: rgba(27,67,50,0.12); background: rgba(255,255,255,0.84);">Hotel booking widget</span>
+            <h2 class="panel-title" style="margin-top: 0.9rem;">Choose dates and guest count.</h2>
+            <p class="panel-copy">
+              Adults are capped at 2, children at 1, and at least one adult is always required.
             </p>
-            <div class="mt-4 rounded-2xl bg-white/10 p-4">
-              <p class="text-xs font-bold uppercase tracking-[0.18em] text-forest/45">CRDB bank transfer</p>
-              <p class="mt-2 text-lg font-bold text-forest">0150907346900</p>
-              <p class="mt-1 text-sm text-charcoal/65">Use this account for payment confirmation.</p>
+
+            <div class="form-grid">
+              <div class="field-group">
+                <label class="field-label" for="checkIn">Check-in Date</label>
+                <input class="field" type="date" id="checkIn" />
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="checkOut">Check-out Date</label>
+                <input class="field" type="date" id="checkOut" />
+              </div>
+
+              <div class="field-group">
+                <div class="field-label">Adults</div>
+                <div class="guest-row">
+                  <div>
+                    <strong>Adults</strong>
+                    <span>Maximum 2 adults. One adult minimum.</span>
+                  </div>
+                  <div class="stepper" aria-label="Adults counter">
+                    <button type="button" id="adultMinus" aria-label="Decrease adults">-</button>
+                    <div class="count" id="adultCount">1</div>
+                    <button type="button" id="adultPlus" aria-label="Increase adults">+</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="field-group">
+                <div class="field-label">Children</div>
+                <div class="guest-row">
+                  <div>
+                    <strong>Children</strong>
+                    <span>Maximum 1 child under 5 years.</span>
+                  </div>
+                  <div class="stepper" aria-label="Children counter">
+                    <button type="button" id="childMinus" aria-label="Decrease children">-</button>
+                    <div class="count" id="childCount">0</div>
+                    <button type="button" id="childPlus" aria-label="Increase children">+</button>
+                  </div>
+                </div>
+              </div>
+
+              <button id="generateRequest" type="submit" class="submit-btn">
+                Secure Booking &amp; Generate Request
+              </button>
+              <div id="formHint" class="helper">Your WhatsApp request will open in a new tab with the booking details already prepared for +255 741 988 988.</div>
             </div>
-          </div>
+          </form>
 
-          <button class="group rounded-2xl bg-forest px-5 py-4 text-base font-bold text-white shadow-soft transition hover:-translate-y-0.5 hover:bg-forest/95" id="generateInvoice">
-            Secure Booking &amp; Generate Invoice
-            <span class="ml-2 inline-block transition group-hover:translate-x-0.5">&rarr;</span>
-          </button>
+          <aside class="panel">
+            <span class="eyebrow" style="color: var(--green); border-color: rgba(27,67,50,0.12); background: rgba(255,255,255,0.84);">Request preview</span>
+            <h3 class="panel-title" style="margin-top: 0.9rem; font-size: clamp(1.8rem, 2.6vw, 2.4rem);">A clean summary for fast confirmation.</h3>
 
-          <p id="invoiceStatus" class="text-sm font-medium text-forest/70">Invoice demo is ready once dates and a room are selected.</p>
-        </div>
-      </div>
-    </section>
+            <div class="summary" style="margin-top: 1rem;">
+              <div class="summary-card">
+                <small>Stay Booking Request</small>
+                <strong id="previewMessage">Select dates to build your request.</strong>
+              </div>
+              <div class="summary-card">
+                <small>Selected dates</small>
+                <strong id="previewDates">--</strong>
+              </div>
+              <div class="summary-card">
+                <small>Guest count</small>
+                <strong id="previewGuests">1 Adult, 0 Children</strong>
+              </div>
+              <div class="summary-card">
+                <small>Total nights</small>
+                <strong id="previewNights">0 nights</strong>
+              </div>
+            </div>
 
-    <section class="mt-6 rounded-[2rem] border border-white/70 bg-white/10 p-5 shadow-soft glass sm:p-6">
-      <div class="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <span class="inline-flex items-center gap-2 rounded-full border border-forest/10 bg-white px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-forest/70">
-            Cottage selection grid
-          </span>
-          <h3 class="display-font mt-4 text-3xl font-bold text-forest">Select your White Style Cottage</h3>
-        </div>
-        <p class="max-w-xl text-sm leading-7 text-charcoal/65">Each room card updates live based on the selected dates, helping Instagram visitors quickly understand what is still open.</p>
-      </div>
+            <div class="policy-box">
+              <p>
+                Strictly by Reservation Only. All bookings are final and subject to our 50% rescheduling policy.
+              </p>
+            </div>
 
-      <div class="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4" id="roomGrid"></div>
-    </section>
-
-    <section class="mt-6 grid gap-4 lg:grid-cols-2">
-      <div class="rounded-[2rem] border border-white/70 bg-white/10 p-5 shadow-soft glass sm:p-6">
-        <h4 class="display-font text-2xl font-bold text-forest">Selection rules</h4>
-        <ul class="mt-4 space-y-3 text-sm leading-7 text-charcoal/70">
-          <li>&bull; Maximum occupancy is 2 adults and 1 child under 5 years.</li>
-          <li>&bull; Date selection uses a two-tap flow: first click for check-in, second click for check-out.</li>
-          <li>&bull; If the second date is earlier than the first, the dashboard automatically swaps the range.</li>
-          <li>&bull; Room availability badges are recalculated instantly for the selected stay.</li>
-        </ul>
-      </div>
-      <div class="rounded-[2rem] border border-white/70 bg-gradient-to-br from-forest to-forest/90 p-5 text-white shadow-luxe glass sm:p-6">
-        <h4 class="display-font text-2xl font-bold">Reservation safeguard</h4>
-        <p class="mt-4 max-w-xl text-sm leading-7 text-white/80">
-          Bali Camp uses direct, high-touch reservations to protect privacy and preserve the boutique experience. Demo clients can review availability, guest capacity, and payment details in one screen.
-        </p>
-        <div class="mt-5 flex flex-wrap gap-3">
-          <a href="bali-camp.html" class="rounded-full border border-white/20 bg-white/10 px-5 py-3 text-sm font-bold text-white transition hover:-translate-y-0.5">
-            View Resort Site
-          </a>
-          <a href="https://wa.me/255741988988" target="_blank" rel="noreferrer" class="rounded-full bg-white px-5 py-3 text-sm font-bold text-forest transition hover:-translate-y-0.5">
-            Book via WhatsApp
-          </a>
-          <span class="inline-flex items-center rounded-full border border-white/15 bg-white/10 px-4 py-3 text-sm font-semibold text-white/85">
-            Strictly by Reservation Only
-          </span>
+            <div class="summary-card" style="margin-top: 1rem;">
+              <small>CRDB bank transfer</small>
+              <strong>Account 0150907346900</strong>
+              <code>Use this account when payment confirmation is required.</code>
+            </div>
+          </aside>
         </div>
       </div>
     </section>
   </main>
 
-  <script>
-    const monthLabel = document.getElementById("monthLabel");
-    const calendar = document.getElementById("calendar");
-    const roomGrid = document.getElementById("roomGrid");
-    const summaryDates = document.getElementById("summaryDates");
-    const summaryNights = document.getElementById("summaryNights");
-    const summaryNightsMini = document.getElementById("summaryNightsMini");
-    const summaryGuests = document.getElementById("summaryGuests");
-    const summaryRoom = document.getElementById("summaryRoom");
-    const liveCottages = document.getElementById("liveCottages");
-    const invoiceStatus = document.getElementById("invoiceStatus");
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; <span id="year"></span> Bali Camp. Strictly by Reservation Only.</p>
+      <p><a href="bali-camp.html">Back to resort site</a></p>
+    </div>
+  </footer>
 
+  <script>
+    const menuToggle = document.getElementById("menuToggle");
+    const menu = document.getElementById("primary-links");
+
+    const checkIn = document.getElementById("checkIn");
+    const checkOut = document.getElementById("checkOut");
     const adultMinus = document.getElementById("adultMinus");
     const adultPlus = document.getElementById("adultPlus");
     const childMinus = document.getElementById("childMinus");
     const childPlus = document.getElementById("childPlus");
     const adultCount = document.getElementById("adultCount");
     const childCount = document.getElementById("childCount");
-    const generateInvoice = document.getElementById("generateInvoice");
+    const generateRequest = document.getElementById("generateRequest");
 
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = today.getMonth();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const monthName = today.toLocaleDateString(undefined, { month: "long", year: "numeric" });
-    monthLabel.textContent = monthName;
+    const previewMessage = document.getElementById("previewMessage");
+    const previewDates = document.getElementById("previewDates");
+    const previewGuests = document.getElementById("previewGuests");
+    const previewNights = document.getElementById("previewNights");
+    const formHint = document.getElementById("formHint");
 
-    const rooms = [
-      { name: "White Style Cottage 01", blocks: [[3, 5], [12, 13], [22, 24]] },
-      { name: "White Style Cottage 02", blocks: [[1, 2], [9, 10], [18, 19]] },
-      { name: "White Style Cottage 03", blocks: [[6, 7], [14, 16], [26, 27]] },
-      { name: "White Style Cottage 04", blocks: [[4, 4], [15, 17], [20, 21]] }
-    ];
+    const PHONE_NUMBER = "255741988988";
+    const PHONE_DISPLAY = "+255 741 988 988";
 
-    let checkIn = null;
-    let checkOut = null;
-    let activeRoom = 0;
+    const pad = (value) => String(value).padStart(2, "0");
+    const toISODate = (date) => `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+    const fromISODate = (value) => {
+      if (!value) return null;
+      const [year, month, day] = value.split("-").map(Number);
+      return new Date(year, month - 1, day);
+    };
+    const formatDate = (date) =>
+      date.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric", year: "numeric" });
+    const addDays = (date, days) => {
+      const next = new Date(date);
+      next.setDate(next.getDate() + days);
+      return next;
+    };
+    const nightsBetween = (start, end) => {
+      if (!start || !end) return 0;
+      const diff = end.getTime() - start.getTime();
+      return Math.max(0, Math.round(diff / 86400000));
+    };
+    const escapeHtml = (value) =>
+      value.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
+
     let adults = 1;
     let children = 0;
 
-    const formatDay = (day) =>
-      new Date(year, month, day).toLocaleDateString(undefined, {
-        weekday: "short",
-        month: "short",
-        day: "numeric"
-      });
-
-    const toDateKey = (day) => `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-
-    const parseRange = (range) => {
-      const [start, end] = range;
-      return { start, end };
+    const syncDateLimits = () => {
+      const inDate = fromISODate(checkIn.value);
+      if (!inDate) return;
+      const minOut = addDays(inDate, 1);
+      checkOut.min = toISODate(minOut);
+      if (!checkOut.value || fromISODate(checkOut.value) <= inDate) {
+        checkOut.value = toISODate(minOut);
+      }
     };
 
-    const dayInRange = (day, start, end) => day >= start && day <= end;
-
-    const roomUnavailableForRange = (room, start, end) => {
-      return room.blocks.some(([bStart, bEnd]) => !(end < bStart || start > bEnd));
-    };
-
-    const getDayAvailability = (day) => {
-      return rooms.filter((room) => !roomUnavailableForRange(room, day, day)).length;
-    };
-
-    const statusForAvailableCount = (count) => {
-      if (count <= 0) return { label: "Fully Booked", cls: "status-muted" };
-      if (count === 1) return { label: "Only 1 Cottage Left", cls: "status-clay" };
-      return { label: "Available", cls: "status-green" };
-    };
-
-    const nightsBetween = (start, end) => {
-      if (!start || !end) return 0;
-      return Math.max(0, end - start);
-    };
-
-    const selectRoomIndex = () => {
-      const firstAvailable = rooms.findIndex((room) => {
-        if (!checkIn || !checkOut) return true;
-        return !roomUnavailableForRange(room, checkIn, checkOut);
-      });
-      activeRoom = firstAvailable >= 0 ? firstAvailable : 0;
-    };
-
-    const updateGuests = () => {
+    const updateGuestUI = () => {
       adultCount.textContent = String(adults);
       childCount.textContent = String(children);
-      summaryGuests.textContent = `${adults} Adult${adults === 1 ? "" : "s"}, ${children} Child${children === 1 ? "" : "ren"}`;
 
       adultMinus.disabled = adults <= 1;
-      adultPlus.disabled = adults >= 2 || adults + children >= 3;
+      adultPlus.disabled = adults >= 2;
       childMinus.disabled = children <= 0;
-      childPlus.disabled = children >= 1 || adults + children >= 3;
+      childPlus.disabled = children >= 1;
 
       [adultMinus, adultPlus, childMinus, childPlus].forEach((button) => {
-        button.classList.toggle("opacity-40", button.disabled);
-        button.classList.toggle("cursor-not-allowed", button.disabled);
+        button.classList.toggle("is-disabled", button.disabled);
       });
     };
 
-    const renderRoomGrid = () => {
-      roomGrid.innerHTML = "";
-      const start = checkIn;
-      const end = checkOut;
-      const selectedRange = start ? parseRange([start, end || start]) : null;
-      let availableCount = 0;
+    const buildMessage = () => {
+      const inDate = fromISODate(checkIn.value);
+      const outDate = fromISODate(checkOut.value);
+      const messageLines = [
+        "Stay Booking Request:",
+        `- Check-in: ${inDate ? formatDate(inDate) : "--"}`,
+        `- Check-out: ${outDate ? formatDate(outDate) : "--"}`,
+        `- Adults: ${adults}`,
+        `- Children: ${children}`
+      ];
+      return messageLines.join("\n");
+    };
 
-      rooms.forEach((room, index) => {
-        const available = selectedRange ? !roomUnavailableForRange(room, selectedRange.start, selectedRange.end) : true;
-        if (available) availableCount += 1;
-      });
+    const updatePreview = () => {
+      const inDate = fromISODate(checkIn.value);
+      const outDate = fromISODate(checkOut.value);
+      const nights = nightsBetween(inDate, outDate);
+      const message = buildMessage();
+      const whatsappUrl = `https://wa.me/${PHONE_NUMBER}?text=${encodeURIComponent(message)}`;
 
-      rooms.forEach((room, index) => {
-        const available = selectedRange ? !roomUnavailableForRange(room, selectedRange.start, selectedRange.end) : true;
-        const roomStatus = !available ? { label: "Fully Booked", cls: "status-muted" } : availableCount === 1 ? { label: "Only 1 Cottage Left", cls: "status-clay" } : { label: "Available", cls: "status-green" };
-        const buttonDisabled = !available;
-        const selected = index === activeRoom;
+      previewMessage.textContent = message;
+      previewDates.textContent = inDate && outDate ? `${formatDate(inDate)} → ${formatDate(outDate)}` : "--";
+      previewGuests.textContent = `${adults} Adult${adults === 1 ? "" : "s"}, ${children} Child${children === 1 ? "" : "ren"}`;
+      previewNights.textContent = `${nights} night${nights === 1 ? "" : "s"}`;
 
-        const card = document.createElement("article");
-        card.className = `room-card card-raise rounded-[1.75rem] border bg-white p-5 shadow-soft ${selected ? "selected-ring border-forest/25" : "border-forest/10"}`;
-        card.dataset.active = selected ? "true" : "false";
+      generateRequest.disabled = !(inDate && outDate && nights > 0);
+      formHint.textContent = generateRequest.disabled
+        ? "Choose a valid stay range to enable request generation."
+        : `Your WhatsApp request is ready to open in a new tab and will send to ${PHONE_DISPLAY}.`;
+    };
 
-        card.innerHTML = `
-          <div class="flex items-start justify-between gap-4">
-            <div>
-              <p class="text-xs font-bold uppercase tracking-[0.2em] text-forest/45">Cottage</p>
-              <h4 class="display-font mt-2 text-2xl font-bold text-forest">${room.name}</h4>
-            </div>
-            <span class="inline-flex items-center rounded-full px-3 py-2 text-xs font-bold ${roomStatus.cls}">${roomStatus.label}</span>
-          </div>
-          <ul class="mt-5 space-y-3 text-sm text-charcoal/70">
-            <li class="flex items-center gap-2"><span class="h-2 w-2 rounded-full bg-forest/70"></span>King Bed</li>
-            <li class="flex items-center gap-2"><span class="h-2 w-2 rounded-full bg-forest/70"></span>Mountain View</li>
-            <li class="flex items-center gap-2"><span class="h-2 w-2 rounded-full bg-forest/70"></span>Massage Bathtub</li>
-          </ul>
-          <button class="mt-5 w-full rounded-2xl px-4 py-3 text-sm font-bold transition ${buttonDisabled ? "bg-slate-100 text-slate-400 cursor-not-allowed" : "bg-forest text-white hover:-translate-y-0.5"}" ${buttonDisabled ? "disabled" : ""}>
-            ${selected ? "Selected Room" : "Select Room"}
-          </button>
-        `;
-
-        const btn = card.querySelector("button");
-        if (!buttonDisabled) {
-          btn.addEventListener("click", () => {
-            activeRoom = index;
-            update();
-          });
-        }
-
-        roomGrid.appendChild(card);
-      });
-
-      liveCottages.textContent = `${availableCount} Available`;
-      if (availableCount === 0) {
-        liveCottages.textContent = "Fully Booked";
-      } else if (availableCount === 1) {
-        liveCottages.textContent = "1 Cottage Left";
+    const openRequestTab = () => {
+      const message = buildMessage();
+      const whatsappUrl = `https://wa.me/${PHONE_NUMBER}?text=${encodeURIComponent(message)}`;
+      const tab = window.open(whatsappUrl, "_blank");
+      if (!tab) {
+        window.location.href = whatsappUrl;
       }
     };
 
-    const renderCalendar = () => {
-      calendar.innerHTML = "";
-      const firstDay = new Date(year, month, 1).getDay();
+    menuToggle?.addEventListener("click", () => {
+      const isOpen = menu.dataset.open === "true";
+      menu.dataset.open = String(!isOpen);
+      menuToggle.setAttribute("aria-expanded", String(!isOpen));
+    });
 
-      for (let i = 0; i < firstDay; i += 1) {
-        const filler = document.createElement("div");
-        filler.className = "min-h-[4.8rem] rounded-[1.15rem] bg-transparent";
-        calendar.appendChild(filler);
+    document.addEventListener("click", (event) => {
+      if (!menu.contains(event.target) && !menuToggle.contains(event.target)) {
+        menu.dataset.open = "false";
+        menuToggle.setAttribute("aria-expanded", "false");
       }
+    });
 
-      for (let day = 1; day <= daysInMonth; day += 1) {
-        const availableCount = getDayAvailability(day);
-        const status = statusForAvailableCount(availableCount);
-        const isPast = day < today.getDate();
-        const isStart = checkIn === day;
-        const isEnd = checkOut === day;
-        const inRange = checkIn && checkOut && dayInRange(day, checkIn, checkOut);
-
-        const button = document.createElement("button");
-        button.type = "button";
-        button.dataset.day = String(day);
-        button.className = `day-btn ${status.cls} ${inRange ? "range-fill" : ""} ${isStart || isEnd ? "selected-ring" : ""} ${isPast ? "opacity-55" : ""}`;
-        button.innerHTML = `
-          <span class="day-number">${day}</span>
-          <span class="day-status ${status.cls}">${status.label}</span>
-        `;
-
-        if (isPast) {
-          button.disabled = true;
-        }
-
-        if (isStart || isEnd) {
-          button.classList.add("border-forest/30");
-        }
-
-        button.addEventListener("click", () => handleDatePick(day));
-        calendar.appendChild(button);
+    window.addEventListener("resize", () => {
+      if (window.innerWidth > 820) {
+        menu.dataset.open = "false";
+        menuToggle.setAttribute("aria-expanded", "false");
       }
-    };
+    });
 
-    const updateSummary = () => {
-      if (checkIn && checkOut) {
-        summaryDates.textContent = `${formatDay(checkIn)} - ${formatDay(checkOut)}`;
-        const nights = nightsBetween(checkIn, checkOut);
-        summaryNights.textContent = `${nights} night${nights === 1 ? "" : "s"}`;
-        summaryNightsMini.textContent = String(nights);
-        selectRoomIndex();
-      } else if (checkIn) {
-        summaryDates.textContent = `${formatDay(checkIn)} to be confirmed`;
-        summaryNights.textContent = "0 nights";
-        summaryNightsMini.textContent = "0";
-      } else {
-        summaryDates.textContent = "Select a check-in date";
-        summaryNights.textContent = "0 nights";
-        summaryNightsMini.textContent = "0";
-      }
-
-      summaryRoom.textContent = checkIn ? rooms[activeRoom].name : "Auto-selecting best available room";
-      invoiceStatus.textContent = checkIn && checkOut
-        ? `Invoice demo ready for ${rooms[activeRoom].name}.`
-        : "Invoice demo is ready once dates and a room are selected.";
-    };
-
-    const update = () => {
-      renderCalendar();
-      renderRoomGrid();
-      updateSummary();
-      updateGuests();
-    };
-
-    const handleDatePick = (day) => {
-      if (!checkIn || (checkIn && checkOut)) {
-        checkIn = day;
-        checkOut = null;
-        activeRoom = 0;
-      } else if (!checkOut) {
-        if (day < checkIn) {
-          checkOut = checkIn;
-          checkIn = day;
-        } else if (day === checkIn) {
-          checkOut = day + 1 <= daysInMonth ? day + 1 : day;
-        } else {
-          checkOut = day;
-        }
-      }
-      update();
-    };
+    checkIn.addEventListener("change", () => {
+      syncDateLimits();
+      updatePreview();
+    });
+    checkOut.addEventListener("change", updatePreview);
 
     adultMinus.addEventListener("click", () => {
       adults = Math.max(1, adults - 1);
-      if (adults + children > 3) children = Math.max(0, 3 - adults);
-      update();
+      updateGuestUI();
+      updatePreview();
     });
-
     adultPlus.addEventListener("click", () => {
-      if (adults < 2 && adults + children < 3) adults += 1;
-      update();
+      adults = Math.min(2, adults + 1);
+      updateGuestUI();
+      updatePreview();
     });
-
     childMinus.addEventListener("click", () => {
       children = Math.max(0, children - 1);
-      update();
+      updateGuestUI();
+      updatePreview();
     });
-
     childPlus.addEventListener("click", () => {
-      if (children < 1 && adults + children < 3) children += 1;
-      update();
+      children = Math.min(1, children + 1);
+      updateGuestUI();
+      updatePreview();
     });
 
-    generateInvoice.addEventListener("click", () => {
-      if (!checkIn || !checkOut) {
-        invoiceStatus.textContent = "Choose two dates to unlock the invoice demo.";
-        return;
-      }
-      invoiceStatus.textContent = `Invoice generated for ${rooms[activeRoom].name}. CRDB transfer details attached for secure booking.`;
-      generateInvoice.textContent = "Booking Secured for Demo";
+    const imageMap = {
+      preview: "assets/We also offer activities like biking..jpg"
+    };
+
+    document.querySelectorAll("[data-img]").forEach((node) => {
+      const src = imageMap[node.dataset.img];
+      if (src) node.src = encodeURI(src);
+    });
+    document.getElementById("bookingForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+      if (generateRequest.disabled) return;
+      openRequestTab();
     });
 
-    update();
+    const today = new Date();
+    const tomorrow = addDays(today, 1);
+    const dayAfter = addDays(today, 2);
+    checkIn.min = toISODate(today);
+    checkOut.min = toISODate(tomorrow);
+    checkIn.value = toISODate(tomorrow);
+    checkOut.value = toISODate(dayAfter);
+
+    syncDateLimits();
+    updateGuestUI();
+    updatePreview();
+    document.getElementById("year").textContent = new Date().getFullYear();
   </script>
 </body>
 </html>
