@@ -696,7 +696,7 @@
           </svg>
         </button>
       </div>
-      <div class="nav-links" id="primary-links" data-open="false">
+      <div class="nav-links navbar-dropdown" id="primary-links" data-open="false">
         <a class="nav-link" href="#booking-widget">Booking Widget</a>
         <a class="nav-link" href="https://www.instagram.com/balicamp_tz?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noreferrer">Instagram</a>
         <a class="nav-link" href="bali-camp.html">View Resort Site</a>
@@ -840,6 +840,7 @@
   <script>
     const menuToggle = document.getElementById("menuToggle");
     const menu = document.getElementById("primary-links");
+    const dropdownLinks = document.querySelectorAll(".navbar-dropdown a");
 
     const checkIn = document.getElementById("checkIn");
     const checkOut = document.getElementById("checkOut");
@@ -952,12 +953,22 @@
     menuToggle?.addEventListener("click", () => {
       const isOpen = menu.dataset.open === "true";
       menu.dataset.open = String(!isOpen);
+      menu.classList.toggle("open", !isOpen);
       menuToggle.setAttribute("aria-expanded", String(!isOpen));
+    });
+
+    dropdownLinks.forEach((link) => {
+      link.addEventListener("click", () => {
+        menu.dataset.open = "false";
+        menu.classList.remove("open");
+        menuToggle.setAttribute("aria-expanded", "false");
+      });
     });
 
     document.addEventListener("click", (event) => {
       if (!menu.contains(event.target) && !menuToggle.contains(event.target)) {
         menu.dataset.open = "false";
+        menu.classList.remove("open");
         menuToggle.setAttribute("aria-expanded", "false");
       }
     });
@@ -965,6 +976,7 @@
     window.addEventListener("resize", () => {
       if (window.innerWidth > 820) {
         menu.dataset.open = "false";
+        menu.classList.remove("open");
         menuToggle.setAttribute("aria-expanded", "false");
       }
     });
